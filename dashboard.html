@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mental Wellness Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Your Mental Health Journal</h2>
+
+    <!-- Mood Tracking Form -->
+    <form id="moodForm">
+      <h3>How are you feeling today?</h3>
+      <input type="text" name="mood" placeholder="e.g., Happy, Anxious" required><br><br>
+      <textarea name="journal" rows="4" cols="40" placeholder="Write your thoughts..."></textarea><br><br>
+      <button type="submit">Submit Mood</button>
+    </form>
+
+    <!-- 🔽 This section displays the result after submission -->
+    <div id="result" style="margin-top: 20px;"></div>
+
+    <hr>
+
+    <!-- Session Booking Form -->
+    <form id="sessionForm">
+      <h3>Book a Counselling Session</h3>
+      <input type="date" name="date" required><br><br>
+      <input type="time" name="time" required><br><br>
+      <button type="submit">Book Session</button>
+    </form>
+  </div>
+
+  <script>
+  const API_URL = "http://localhost:5135";
+
+  document.getElementById("moodForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+
+    try {
+      const response = await fetch(`${API_URL}/api/mood`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          mood: data.get("mood"),
+          journal: data.get("journal")
+        })
+      });
+
+      const result = await response.json();
+
+      document.getElementById("result").innerHTML = `
+        <h4>Your last submitted mood:</h4>
+        <p><strong>Mood:</strong> ${result.entry.mood}</p>
+        <p><strong>Journal:</strong> ${result.entry.journal}</p>
+      `;
+    } catch (err) {
+      console.error("Submission failed:", err);
+      document.getElementById("result").innerHTML = `<p style="color:red;">Error submitting mood</p>`;
+    }
+
+    this.reset();
+  });
+</script>
+
+</body>
+</html>
